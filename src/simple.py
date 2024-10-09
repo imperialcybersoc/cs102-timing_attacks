@@ -58,7 +58,6 @@ def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool
     """tries to guess the password :D"""
     # set of valid characters
     letters_numbers_symbols = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation + ' ')
-    print(letters_numbers_symbols)
 
     # make a random string of same length as guess
     guess = "a"*length_guess
