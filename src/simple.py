@@ -1,106 +1,97 @@
+import string
 import time
-from passwords import fred
-password = fred.get_password(0)
+from typing import Callable
+from passwords import phred
 
 
-def basic_compare(val1, val2):
+
+def basic_compare(val1: str, val2: str) -> bool:
     # first check the length of the two strings
     # if they're not the same length, they can't be the same
     if len(val1) != len(val2):
         return False
 
     for x, y in zip(val1, val2):
-        time.sleep(0.01)  # accentuate comparison delay
+        time.sleep(0.01)
         if x != y:
             return False
 
     return True
 
 
-def guess_demo():
-    correct_password = password
-    correct = False
+def guess_length(correct_password: str, comparison_fn: Callable[[str, str], bool]) -> int:
+    """this function guesses the length of the password by comparing lengths"""
 
-    while not correct:
-        durations = []
+    number_of_attempts = 50
+    average_times = []
 
-        guess = input("Enter a guess: ")
+    for length in range(number_of_attempts):
+        attempt = "a"*length
+        durations=[]
 
-        # take an average of 10 attempts
-        for i in range(10):
+        # compare strings 10 times and average it
+        for _ in range(10):
+
             tic = time.perf_counter_ns()
-            correct = basic_compare(correct_password, guess)
+            comparison_fn(correct_password, attempt)
             toc = time.perf_counter_ns()
 
-            durations.append((tic - toc) / 1e9)
+            durations.append((toc - tic) / 1e9)
 
         av_time = sum(durations) / len(durations)
+        average_times.append(av_time)
 
-        print(f"Guess took {av_time:.6f}s, and was {'correct' if correct else 'incorrect'}")
-
-
-def timing_attack_demo():
-    correct_password = password
-    attempt = ""
-    correct = False
-    pwd_length = 0
-
-    # guess password length
-    while not correct:
-        durations = []
-
-        attempt = "a"*pwd_length
-
-        # take an average of 10 attempts
-        for i in range(10):
-            tic = time.perf_counter_ns()
-            correct = basic_compare(correct_password, attempt)
-            toc = time.perf_counter_ns()
-
-            durations.append((tic - toc) / 1e9)
-
-        av_time = sum(durations) / len(durations)
-
-        # TODO: write this
-
-        pwd_length += 1
-
-
-    attempt = "a"*pwd_length
-
-    _ = input("Press enter to continue")
-
-    while not correct:
-        durations = []
-
-        # take an average of 10 attempts
-        for i in range(10):
-            tic = time.perf_counter_ns()
-            correct = basic_compare(correct_password, attempt)
-            toc = time.perf_counter_ns()
-
-            durations.append((tic - toc) / 1e9)
-
-        av_time = sum(durations) / len(durations)
+    # sort the times
+    sorted_times = sorted(list(enumerate(average_times)),key=lambda x: x[1], reverse=True)
+    # print top 5 slowest lengths
+    print(sorted_times[:5])
+    
+    # return the slowest length
+    return sorted_times[0][0]
 
 
 
-# TODO: does this timing attack work against python's built-in equality operator?
 
+# TODO: does this timing attack work against python's built-in equality operator? Nope
 
-def demo_example():
-    correct_password = password
-    attempt = ""
+def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool], length_guess:int) -> str:
+    """tries to guess the password :D"""
+    # set of valid characters
+    letters_numbers_symbols = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation + ' ')
+    print(letters_numbers_symbols)
 
-    tic = time.perf_counter_ns()
-    correct = basic_compare(correct_password, attempt)
-    toc = time.perf_counter_ns()
+    # make a random string of same length as guess
+    guess = "a"*length_guess
+    
+    # iterate through every character in guess
+    for i in range(length_guess):
+        timed_guesses: list[tuple[str,float]] = []
+        # iterate through all possible characters
+        for c in letters_numbers_symbols:
+            new_guess = guess[:i] + c + guess[i+1:]
+            print(new_guess)
 
-    duration = (tic - toc) / 1e9
+            # compare strings 10 times and average it
+            durations = []
+            for _ in range(10):
 
-    print(f"Guess took {duration:.6f}s, and was {"correct" if correct else "incorrect"}")
+                tic = time.perf_counter_ns()
+                comparison_fn(correct_password, new_guess)
+                toc = time.perf_counter_ns()
 
+                durations.append((toc - tic) / 1e9)
 
+            av_time = sum(durations) / len(durations)
+            timed_guesses.append((c,av_time))
+        
+        sorted_times = sorted(timed_guesses,key=lambda x: x[1], reverse=True)
+
+        # create new guess based on longest time
+        guess=guess[:i] + sorted_times[0][0] + guess[i+1:]
+    return guess
 
 if __name__ == "__main__":
-    guess_demo()
+    password: str = phred.get_password(0)
+    length_guess = guess_length(correct_password=password, comparison_fn=basic_compare)
+    password = guess_password(correct_password=password,comparison_fn=basic_compare,length_guess=length_guess)
+    print(f"This is the password woooo lets gooooo {password}")
