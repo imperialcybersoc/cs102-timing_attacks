@@ -15,6 +15,7 @@ def basic_compare(val1: str, val2: str) -> bool:
         time.sleep(0.01)
         if x != y:
             return False
+    time.sleep(0.01)
 
     return True
 
@@ -90,7 +91,7 @@ def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool
     return guess
 
 if __name__ == "__main__":
-    password: str = phred.get_password(0)
+    password: str = phred.get_password(1)
     length_guess = guess_length(correct_password=password, comparison_fn=basic_compare)
     password = guess_password(correct_password=password,comparison_fn=basic_compare,length_guess=length_guess)
     print(f"This is the password woooo lets gooooo {password}")
