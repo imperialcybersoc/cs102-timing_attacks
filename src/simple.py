@@ -43,26 +43,33 @@ def guess_length(correct_password: str, comparison_fn: Callable[[str, str], bool
         average_times.append(av_time)
 
     # sort the times
-    sorted_times = sorted(list(enumerate(average_times)),key=lambda x: x[1], reverse=True)
+    sorted_times = sorted(
+        list(enumerate(average_times)),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
     # print top 5 slowest lengths
     print(sorted_times[:5])
-    
+
     # return the slowest length
     return sorted_times[0][0]
 
 
-
-
-# TODO: does this timing attack work against python's built-in equality operator? Nope
-
 def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool], length_guess:int) -> str:
     """tries to guess the password :D"""
     # set of valid characters
-    letters_numbers_symbols = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation + ' ')
+    letters_numbers_symbols = set(
+        string.ascii_lowercase
+        + string.ascii_uppercase
+        + string.digits
+        + string.punctuation
+        + ' '
+    )
 
     # make a random string of same length as guess
     guess = "a"*length_guess
-    
+
     # iterate through every character in guess
     for i in range(length_guess):
         timed_guesses: list[tuple[str,float]] = []
@@ -82,16 +89,27 @@ def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool
                 durations.append((toc - tic) / 1e9)
 
             av_time = sum(durations) / len(durations)
-            timed_guesses.append((c,av_time))
-        
-        sorted_times = sorted(timed_guesses,key=lambda x: x[1], reverse=True)
+            timed_guesses.append((c, av_time))
+
+        sorted_times = sorted(timed_guesses, key=lambda x: x[1], reverse=True)
 
         # create new guess based on longest time
         guess=guess[:i] + sorted_times[0][0] + guess[i+1:]
     return guess
 
+
 if __name__ == "__main__":
-    password: str = phred.get_password(1)
-    length_guess = guess_length(correct_password=password, comparison_fn=basic_compare)
-    password = guess_password(correct_password=password,comparison_fn=basic_compare,length_guess=length_guess)
+    password: str = phred.get_password(0)
+
+    length_guess = guess_length(
+        correct_password=password,
+        comparison_fn=basic_compare
+    )
+
+    password = guess_password(
+        correct_password=password,
+        comparison_fn=basic_compare,
+        length_guess=length_guess
+    )
+
     print(f"This is the password woooo lets gooooo {password}")
