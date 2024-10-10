@@ -2,6 +2,9 @@ import string
 import time
 from typing import Callable
 from passwords import phred
+from hashlib import sha256
+import sys
+from random import choice as randchoice
 
 
 
@@ -11,19 +14,30 @@ def basic_compare(val1: str, val2: str) -> bool:
     if len(val1) != len(val2):
         return False
 
+    compare_time = 0.02
+
     for x, y in zip(val1, val2):
-        time.sleep(0.01)
+        time.sleep(compare_time)
         if x != y:
             return False
-    time.sleep(0.01)
+
+    time.sleep(compare_time*2)
 
     return True
+
+
+def secure_compare(val1: str, val2: str) -> bool:
+    #return hmac.compare_digest(val1, val2)
+    hash1 = sha256(val1.encode()).hexdigest()
+    hash2 = sha256(val2.encode()).hexdigest()
+    return hash1 == hash2
+
 
 
 def guess_length(correct_password: str, comparison_fn: Callable[[str, str], bool]) -> int:
     """this function guesses the length of the password by comparing lengths"""
 
-    number_of_attempts = 50
+    number_of_attempts = 600
     average_times = []
 
     for length in range(number_of_attempts):
@@ -67,8 +81,10 @@ def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool
         + ' '
     )
 
+    lns_ls = list(letters_numbers_symbols)
+
     # make a random string of same length as guess
-    guess = "a"*length_guess
+    guess = "".join([randchoice(lns_ls) for _ in range(length_guess)])
 
     # iterate through every character in guess
     for i in range(length_guess):
@@ -94,22 +110,43 @@ def guess_password(correct_password: str, comparison_fn: Callable[[str,str],bool
         sorted_times = sorted(timed_guesses, key=lambda x: x[1], reverse=True)
 
         # create new guess based on longest time
-        guess=guess[:i] + sorted_times[0][0] + guess[i+1:]
+        guess = guess[:i] + sorted_times[0][0] + guess[i+1:]
+
     return guess
 
 
-if __name__ == "__main__":
-    password: str = phred.get_password(0)
+def guess_demo():
+    pwd_idx: int = int(sys.argv[1])
+    password: str = phred.get_password(pwd_idx)
+
+    print(f"The target password is {password}\n{'-'*30}")
+    time.sleep(1)
 
     length_guess = guess_length(
         correct_password=password,
         comparison_fn=basic_compare
     )
 
-    password = guess_password(
+    if length_guess == len(password):
+        print(f"The length of the password is {length_guess}\n")
+        time.sleep(1)
+    else:
+        print(f"Failed to guess the length of the password, the length was {len(password)} but we guessed {length_guess} D:")
+        return
+
+    password_guess = guess_password(
         correct_password=password,
         comparison_fn=basic_compare,
         length_guess=length_guess
     )
 
-    print(f"This is the password woooo lets gooooo {password}")
+
+    if password_guess == password:
+        print(f"The password is \"{password_guess}\", woooo lets gooooo")
+    else:
+        print(f"Failed to guess the password, the password was {password} but we guessed {password_guess} :(")
+
+
+if __name__ == "__main__":
+    guess_demo()
+    #secure_compare("hello", "hello")
