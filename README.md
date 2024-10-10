@@ -1,8 +1,12 @@
 # cs102-timing_attacks
 The slides, schedule, and example code for the Timing Attack workshop.
 
-## Planning Progress
-So far the workshop has been planned, just some Copilot-generated code in `main.py`, and the slides are a WIP
+## Fun Resources
+
+- [This video](https://youtu.be/XThL0LP3RjY) forms the basis for this workshop
+  - feel free to check it out to see more advanced example code
+- The LED-flickering exploit can be found on [this page](https://arstechnica.com/information-technology/2023/06/hackers-can-steal-cryptographic-keys-by-video-recording-connected-power-leds-60-feet-away/)
+  - I have resolved to just understanding that nothing is safe...
 
 ## Plan
 
@@ -26,9 +30,3 @@ So far the workshop has been planned, just some Copilot-generated code in `main.
   - interactive: let them run free and see what they can come up with (25 min: 85)
   - let then let them present some of their solutions, idk how long this will take, maybe let ppl leave at this point? (15min: 100)
 - Then can wrap up and see if anyone has any questions
-
-
-> TODO: Design the running of the workshop itself
-> TODO: Write the slides that you'll be using
-> TODO: Then write the code that you'll need
-
