@@ -7,6 +7,8 @@ The slides, schedule, and example code for the Timing Attack workshop.
   - feel free to check it out to see more advanced example code
 - The LED-flickering exploit can be found on [this page](https://arstechnica.com/information-technology/2023/06/hackers-can-steal-cryptographic-keys-by-video-recording-connected-power-leds-60-feet-away/)
   - I have resolved to just understanding that nothing is safe...
+- [This subdomain](https://timing.attacks.cr.yp.to/) of the `cr.yp.to` site documents a lot of real-life timing attacks
+  - A good resource to take a look at if you're more advanced and want to see what timing attacks look like in the wild
 
 ## Plan
 
